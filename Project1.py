@@ -12,18 +12,25 @@ def draw_mouse(event,x,y,flags,data):
     if event == cv2.EVENT_LBUTTONDOWN:
         mouse_x1 = x
         mouse_y1 = y
+        if cut == True:
+            mouse_x1 += mouse_x3
+            mouse_y1 += mouse_x3
         print(x,y)
     elif event == cv2.EVENT_MOUSEMOVE:
         if cut == True:
-            mouse_x3 = x
-            mouse_y3 = y
+            mouse_x3 = x-mouse_x1-mouse_x2
+            mouse_y3 = y-mouse_x2-mouse_y2
     elif event == cv2.EVENT_LBUTTONUP:
         mouse_x2 = x
         mouse_y2 = y
+        if cut == True:
+            mouse_x2 += mouse_x3
+            mouse_y2 += mouse_x3
         print(x,y)
+
 def Sub_img(original):
     global mouse_x1,mouse_y1,mouse_x2,mouse_y2,mouse_x3,mouse_y3
-    sub_img =original[mouse_y1+mouse_y3:mouse_y2+mouse_y3,mouse_x1+mouse_x3:mouse_x2+mouse_x3]
+    sub_img =original[mouse_y1:mouse_y2,mouse_x1:mouse_x2]
     #sub_img = original[mouse_y1+mouse_y3:mouse_y2+mouse_y3,mouse_x1+mouse_x3:mouse_x2+mouse_x3]
     #if cut == True:
      #   sub_img = original[mouse_y1+mouse_y3:mouse_y2+mouse_y3,mouse_x1+mouse_x3:mouse_x2+mouse_x3]
@@ -31,7 +38,7 @@ def Sub_img(original):
     return sub_img
 
 def imageload():
-    global mouse_x1,mouse_y1,mouse_x2,mouse_y2,cut
+    global mouse_x1,mouse_y1,mouse_x2,mouse_y2,mouse_x3,mouse_y3,cut
     a = sys.argv[1]
     original = cv2.imread(a,1)
     gray = cv2.imread(a,0)
@@ -64,15 +71,16 @@ def imageload():
             c=NORMAL
             cv2.destroyAllWindows()
         elif k == ord('c'):
-            if cut==True:
-                b=Sub_img(original)
-                cv2.resize(b,(ori_x,ori_y))
-            b=Sub_img(original)
-            cv2.resize(b,(ori_x,ori_y))
+            d=Sub_img(original)
+            b=cv2.resize(d,(ori_x,ori_y))
             cut = True
         elif k == ord('1'):
             b=original
             c=NORMAL
+        if cut == True:
+            if  k == ord('d'):
+                b=Sub_img(original)
+                cv2.resize(b,(ori_x,ori_y))
 
 
             
