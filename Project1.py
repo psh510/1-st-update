@@ -8,21 +8,35 @@ mouse_x3,mouse_y3=0,0
 nf=1
 cut = False
 tran = False
+original=[]
+b=[]
+basename=[]
 def allfiles(path):
+    global nf, basename
     res = []
-
     for root, dirs, files in os.walk(path):
         rootpath = os.path.join(os.path.abspath(path), root)
-
         for file in files:
             filepath = os.path.join(rootpath, file)
+            base = os.path.basename(filepath)
+            print(filepath)
             res.append(filepath)
-
+        i=0
+        for file in files:
+            filepath = os.path.join(rootpath, file)
+            base = os.path.basename(filepath)
+            print(base)
+            print(basename)
+            if basename == base :
+                break
+            else:
+                i = i+1
+            nf = i
+            print(nf)    
     return res
 
-
 def draw_mouse(event,x,y,flags,data):
-    global mouse_x1,mouse_y1,mouse_x2,mouse_y2,mouse_x3,mouse_y3,cut,tran
+    global mouse_x1,mouse_y1,mouse_x2,mouse_y2,mouse_x3,mouse_y3,cut,tran,original,b
     if event == cv2.EVENT_LBUTTONDOWN:
         mouse_x1 = x
         mouse_y1 = y      
@@ -38,22 +52,27 @@ def draw_mouse(event,x,y,flags,data):
             tran = False
         mouse_x2 = x
         mouse_y2 = y
-        print(x,y)       
+        print(x,y)         
 
 def Sub_img(original):
     global mouse_x1,mouse_y1,mouse_x2,mouse_y2,mouse_x3,mouse_y3,cut,tran
     if cut==False:
-       sub_img =original[mouse_y1:mouse_y2,mouse_x1:mouse_x2]
+        sub_img =original[mouse_y1:mouse_y2,mouse_x1:mouse_x2]
     if tran==True:
         sub_img =original[mouse_y1+mouse_y3:mouse_y2+mouse_y3,mouse_x1+mouse_x3:mouse_x2+mouse_x3]
     return sub_img
 
 
 def imageload():
-    global mouse_x1,mouse_y1,mouse_x2,mouse_y2,mouse_x3,mouse_y3,cut,tran,nf
+    global mouse_x1,mouse_y1,mouse_x2,mouse_y2,mouse_x3,mouse_y3,cut,tran,nf,original,b,basename
     out=0
+    index=0
     res = []
-    res = allfiles(sys.argv[1])
+    basename = os.path.basename(sys.argv[1])
+    print(basename)
+    print(os.path.dirname(sys.argv[1]))
+    dir = os.path.dirname(sys.argv[1])
+    res = allfiles(dir)
     ds = len(res)
     while True:
         mouse_x1,mouse_y1,mouse_x2,mouse_y2,mouse_x3,mouse_y3=0,0,0,0,0,0
@@ -63,7 +82,8 @@ def imageload():
         NORMAL = cv2.WINDOW_NORMAL
         AUTO = cv2.WINDOW_AUTOSIZE
         b=original
-        c= NORMAL  
+        c= NORMAL 
+         
         while True:
             cv2.namedWindow('imgloadview',c)
             cv2.setMouseCallback('imgloadview',draw_mouse,param=original)
@@ -77,6 +97,14 @@ def imageload():
                 break
             elif k == ord('g'):
                 b=gray
+            elif k == ord('b'):
+                if index == 0:
+                    b=cv2.rectangle(b,(mouse_x1,mouse_y1),(mouse_x2,mouse_y2),(255,0,0),2)
+                    print(' bbox size : ',mouse_x2-mouse_x1, mouse_y2-mouse_y1)
+                    index=1
+                if index == 1:
+                    b=original
+                    index = 0   
             elif k == ord('r'):
                 b=original
             elif k == ord('a'):
